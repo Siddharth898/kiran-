@@ -47,7 +47,7 @@ const LandingPage = () => {
               >
                 <FiMonitor className="mr-2" /> Dashboard
               </button>
-             
+
             </div>
           )}
         </div>

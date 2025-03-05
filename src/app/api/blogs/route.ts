@@ -6,12 +6,21 @@ const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID as string;
 const COLLECTION_ID = process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_ID as string;
 const BUCKET_ID = process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID as string; // ✅ Add Bucket ID
 
-
-
 const storage = new Storage(client); // ✅ Initialize Storage
 
 export async function GET(req: NextRequest) {
-console.log(DATABASE_ID, COLLECTION_ID, BUCKET_ID);
+  console.log("Fetching blogs...");
+  console.log("DATABASE_ID:", DATABASE_ID);
+  console.log("COLLECTION_ID:", COLLECTION_ID);
+  console.log("BUCKET_ID:", BUCKET_ID);
+
+  if (!DATABASE_ID || !COLLECTION_ID || !BUCKET_ID) {
+    console.error("❌ Missing environment variables!");
+    return NextResponse.json(
+      { success: false, message: "Missing environment variables" },
+      { status: 500 }
+    );
+  }
 
   try {
     // Get query parameters for pagination
@@ -20,12 +29,16 @@ console.log(DATABASE_ID, COLLECTION_ID, BUCKET_ID);
     const limit = parseInt(searchParams.get("limit") || "6", 10);
     const offset = (page - 1) * limit;
 
+    console.log(`Pagination params - Page: ${page}, Limit: ${limit}, Offset: ${offset}`);
+
     // Fetch blogs with pagination
     const response = await databases.listDocuments(DATABASE_ID, COLLECTION_ID, [
       Query.limit(limit),
       Query.offset(offset),
       Query.orderDesc("$createdAt"),
     ]);
+
+    console.log("✅ Blogs fetched successfully:", response.documents.length);
 
     // Attach image URLs if blogs have images
     const blogsWithImages = await Promise.all(
@@ -40,7 +53,7 @@ console.log(DATABASE_ID, COLLECTION_ID, BUCKET_ID);
 
     return NextResponse.json({ success: true, blogs: blogsWithImages });
   } catch (error) {
-    console.error("Error fetching blogs:", error);
+    console.error("❌ Error fetching blogs:", error);
     return NextResponse.json(
       { success: false, message: "Failed to fetch blogs" },
       { status: 500 }
