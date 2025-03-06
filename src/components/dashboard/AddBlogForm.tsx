@@ -1,16 +1,7 @@
 "use client";
 
-import type React from "react";
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-
-interface Blog {
-  id: string;
-  title: string;
-  description: string;
-  author: string;
-  imageUrl: string;
-}
 
 interface AddBlogFormProps {
   onBack: () => void;
@@ -22,52 +13,48 @@ const AddBlogForm: React.FC<AddBlogFormProps> = ({ onBack }) => {
   const [description, setDescription] = useState("");
   const [author, setAuthor] = useState("");
   const [image, setImage] = useState<File | null>(null);
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Load blogs from localStorage when component mounts
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedBlogs = JSON.parse(localStorage.getItem("blogs") || "[]");
-      setBlogs(savedBlogs);
-    }
-  }, []);
-
-  // ✅ Function to handle adding a blog
-  const handleAddBlog = (newBlog: Blog) => {
-    console.log("Adding Blog:", newBlog); // 🛠 Debugging Log
-    const updatedBlogs = [...blogs, newBlog];
-    localStorage.setItem("blogs", JSON.stringify(updatedBlogs));
-    setBlogs(updatedBlogs);
-    window.dispatchEvent(new Event("storage")); // ✅ Ensures updates across pages
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  // ✅ Handle Form Submission
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form Submitted!"); // 🛠 Debugging Log
 
     if (!title || !description || !author) {
       alert("Please fill in all fields.");
       return;
     }
 
-    const newBlog: Blog = {
-      id: Date.now().toString(),
-      title,
-      description,
-      author,
-      imageUrl: image ? URL.createObjectURL(image) : "",
-    };
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", description);
+    formData.append("author", author);
+    if (image) formData.append("image", image);
 
-    handleAddBlog(newBlog); // ✅ Call `handleAddBlog`
+    setLoading(true);
+    try {
+      const response = await fetch("/api/blogs", {
+        method: "POST",
+        body: formData,
+      });
 
-    // ✅ Clear form after submission
-    setTitle("");
-    setDescription("");
-    setAuthor("");
-    setImage(null);
-
-    onBack(); // Go back to dashboard
-    router.refresh(); // Refresh page (Next.js-specific fix)
+      const data = await response.json();
+      if (data.success) {
+        alert("Blog added successfully!");
+        setTitle("");
+        setDescription("");
+        setAuthor("");
+        setImage(null);
+        onBack(); // Navigate back
+        router.refresh(); // Refresh blogs
+      } else {
+        alert("Failed to add blog. Try again!");
+      }
+    } catch (error) {
+      console.error("Error submitting blog:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -128,14 +115,16 @@ const AddBlogForm: React.FC<AddBlogFormProps> = ({ onBack }) => {
           type="button"
           onClick={onBack}
           className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-sky-600 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+          disabled={loading}
         >
           Back
         </button>
         <button
           type="submit"
           className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+          disabled={loading}
         >
-          Add Blog Post
+          {loading ? "Adding..." : "Add Blog Post"}
         </button>
       </div>
     </form>
