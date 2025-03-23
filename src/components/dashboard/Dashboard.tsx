@@ -1,8 +1,14 @@
 "use client";
 
+<<<<<<< HEAD
 import { useState, useEffect } from "react";
 import AddBlogForm from "./AddBlogForm";
 import AddImageToGallery from "./AddImageToGallery";
+=======
+import { useState } from "react";
+// import AddBlogForm from "./AddBlogForm";
+// import AddImageToGallery from "./AddImageToGallery";
+>>>>>>> upstream/main
 
 interface Blog {
   id: string;
@@ -45,6 +51,7 @@ const Dashboard: React.FC = () => {
           Add Image to Gallery
         </button>
       </div>
+<<<<<<< HEAD
 
       <div className="mt-4">
         {activeSection === "blog" && <AddBlogForm onBack={() => { setActiveSection(null); loadBlogs(); }} />}
@@ -67,6 +74,12 @@ const Dashboard: React.FC = () => {
           <p className="text-gray-500">No blog posts available.</p>
         )}
       </div>
+=======
+      {/* <div className="mt-4">
+        {activeSection === "blog" && <AddBlogForm />}
+        {activeSection === "gallery" && <AddImageToGallery />}
+      </div> */}
+>>>>>>> upstream/main
     </div>
   );
 };
