@@ -13,6 +13,7 @@ const Gallery = () => {
         const response = await fetch("/api/get-images");
         const data = await response.json();
 
+<<<<<<< HEAD
         // Ensure data is an array before setting state
         if (Array.isArray(data)) {
           setGalleryImages(data);
@@ -24,6 +25,11 @@ const Gallery = () => {
 
     fetchGalleryImages();
   }, []);
+=======
+    setGalleryImages(galleryData);
+    console.log(galleryImages);
+  });
+>>>>>>> upstream/main
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -46,6 +52,36 @@ const Gallery = () => {
           </div>
         ))}
       </div>
+<<<<<<< HEAD
+=======
+
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={closeLightbox}
+        >
+          <div
+            className="max-w-3xl w-full p-4 bg-white rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+              src={selectedImage.src}
+              alt={selectedImage.alt}
+              className="w-full h-auto object-contain max-h-[80vh]"
+            />
+            <p className="mt-2 text-center text-gray-600">
+              {selectedImage.alt}
+            </p>
+            <button
+              className="mt-4 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transition duration-300 w-full"
+              onClick={closeLightbox}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+>>>>>>> upstream/main
     </div>
   );
 };
